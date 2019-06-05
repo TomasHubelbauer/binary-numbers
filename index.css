@@ -1,0 +1,21 @@
+body {
+  font-family: sans-serif;
+}
+
+table {
+  border: 1px solid silver;
+}
+
+th {
+  background: lightgray;
+  padding: 1ex;
+  text-align: start;
+}
+
+td {
+  padding: 1ex;
+}
+
+td.code {
+  font-family: monospace;
+}
