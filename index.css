@@ -1,9 +1,17 @@
 body {
+  display: flex;
+  flex-direction: column;
   font-family: sans-serif;
+}
+
+#numberInput {
+  font-size: xx-large;
+  text-align: center;
 }
 
 table {
   border: 1px solid silver;
+  margin-top: 1em;
 }
 
 th {
