@@ -54,14 +54,14 @@ window.addEventListener('load', () => {
     }
 
     // TODO: 24bit
-
-    if (number >= -2147483648 && number <= 2147483647) {
+    
+    if (number >= 0 && number <= 4294967295) {
       const arrayBuffer = new ArrayBuffer(4);
       const dataView = new DataView(arrayBuffer);
-      dataView.setInt32(0, number, false);
+      dataView.setUint32(0, number, false);
       document.getElementById('uint32BeHexTd').textContent = getHexString(arrayBuffer);
       document.getElementById('uint32BeBinTd').textContent = getBinString(arrayBuffer);
-      dataView.setInt32(0, number, true);
+      dataView.setUint32(0, number, true);
       document.getElementById('uint32LeHexTd').textContent = getHexString(arrayBuffer);
       document.getElementById('uint32LeBinTd').textContent = getBinString(arrayBuffer);
     } else {
@@ -71,13 +71,13 @@ window.addEventListener('load', () => {
       document.getElementById('uint32LeBinTd').textContent = '';
     }
 
-    if (number >= 0 && number <= 4294967295) {
+    if (number >= -2147483648 && number <= 2147483647) {
       const arrayBuffer = new ArrayBuffer(4);
       const dataView = new DataView(arrayBuffer);
-      dataView.setUint32(0, number, false);
+      dataView.setInt32(0, number, false);
       document.getElementById('int32BeHexTd').textContent = getHexString(arrayBuffer);
       document.getElementById('int32BeBinTd').textContent = getBinString(arrayBuffer);
-      dataView.setUint32(0, number, true);
+      dataView.setInt32(0, number, true);
       document.getElementById('int32LeHexTd').textContent = getHexString(arrayBuffer);
       document.getElementById('int32LeBinTd').textContent = getBinString(arrayBuffer);
     } else {
