@@ -5,6 +5,23 @@ window.addEventListener('load', () => {
   function render() {
     const number = numberInput.valueAsNumber;
 
+    const bitsDiv = document.getElementById('bitsDiv');
+    if (number >= 0 && number <= 256) {
+      bitsDiv.textContent = 'Bits:'
+        + (((number & (1 << (7 - 0))) !== 0) ? ' set' : ' unset')
+        + (((number & (1 << (7 - 1))) !== 0) ? ' set' : ' unset')
+        + (((number & (1 << (7 - 2))) !== 0) ? ' set' : ' unset')
+        + (((number & (1 << (7 - 3))) !== 0) ? ' set' : ' unset')
+        + (((number & (1 << (7 - 4))) !== 0) ? ' set' : ' unset')
+        + (((number & (1 << (7 - 5))) !== 0) ? ' set' : ' unset')
+        + (((number & (1 << (7 - 6))) !== 0) ? ' set' : ' unset')
+        + (((number & (1 << (7 - 7))) !== 0) ? ' set' : ' unset')
+        + ' ' + number.toString(2)
+        ;
+    } else {
+      bitsDiv.textContent = 'Not a byte.';
+    }
+
     if (number >= -128 && number <= 127) {
       const arrayBuffer = new ArrayBuffer(1);
       const dataView = new DataView(arrayBuffer);
@@ -54,7 +71,7 @@ window.addEventListener('load', () => {
     }
 
     // TODO: 24bit
-    
+
     if (number >= 0 && number <= 4294967295) {
       const arrayBuffer = new ArrayBuffer(4);
       const dataView = new DataView(arrayBuffer);
