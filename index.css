@@ -9,21 +9,6 @@ body {
   text-align: center;
 }
 
-table {
-  border: 1px solid silver;
-  margin-top: 1em;
-}
-
-th {
-  background: lightgray;
-  padding: 1ex;
-  text-align: start;
-}
-
-td {
-  padding: 1ex;
-}
-
-td.code {
-  font-family: monospace;
+code {
+  display: block;
 }
