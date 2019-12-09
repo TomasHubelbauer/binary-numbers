@@ -26,7 +26,7 @@ Want to sum up a subset of bits across multiple bytes? Multiply each bit by the 
 
 ### Consider changing from a table to a list
 
-###Implement a *Formula* section for each view, hex and bin, showing the conversion to dec
+### Implement a *Formula* section for each view, hex and bin, showing the conversion to dec
 
 Display that with indices once and then with real values again for obviousness
 
