@@ -26,10 +26,27 @@ Want to sum up a subset of bits across multiple bytes? Multiply each bit by the 
 
 ### Implement a *Formula* section for each view, hex and bin, showing the conversion to dec
 
-Display that with indices once and then with real values again for obviousness
+The best way to show this will be to expand the formula and display arrows from the variables
+(like d1...dn for each digit) in the formula and the digits in the hex/bin form displayed.
+Consider instead of the variables showing the actual digit values where the arrows existing
+between them in the formula and in the displayed hex/bin would make sure they cannot be mistook
+for another digit of the same value.
 
-### Accept hex and binary strings as input (ask about endianness or maybe show variants for all endiadnesses)
+When we have multiple forms (bin, hex, dec), display conversions to hex/bin if decimal or
+to dec if not decimal. See below about accepting multiple kinds of inputs and repeating the
+UI for them.
+
+### Accept hex and binary strings as input
+
+Change from `number` input to text input and display the content for the number as dec, hex
+and bin - all of these forms which match. Prevent invalid inputs from being input (only 0-9
+and A through F in both cases). Repeat the UI (draw programatically) for each matching form.
 
 ### Implement the missing 24 and 64 bit conversions by extending the `DataView` prototype
 
-### Consider supporting mixed endian with the respective `DataView` prototype extensions
+https://gist.github.com/nphyx/5c19ef4cdb9774d87e0d +
+https://github.com/TomasHubelbauer/sqlite-javascript/blob/master/patchDataView.js
+
+### Consider supporting middle endian with the respective `DataView` prototype extensions
+
+https://en.wikipedia.org/wiki/Endianness#Middle-endian
