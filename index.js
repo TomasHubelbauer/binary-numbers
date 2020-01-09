@@ -88,7 +88,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       int16BeP.append(beBinCode);
-      int16BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
+      int16BeP.append(makeSvg(number));
 
       dataView.setInt16(0, number, true);
       int16LeP.append(document.createTextNode(`Is int16 little endian (2 bytes, -32768-32767). `));
@@ -118,7 +118,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       uint16BeP.append(beBinCode);
-      uint16BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
+      uint16BeP.append(makeSvg(number));
 
       dataView.setUint16(0, number, true);
       uint16LeP.append(document.createTextNode(`Is uint16 little endian (2 bytes, 0-65536). `));
@@ -151,7 +151,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       int32BeP.append(beBinCode);
-      int32BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
+      int32BeP.append(makeSvg(number));
 
       dataView.setInt32(0, number, true);
       int32LeP.append(document.createTextNode(`Is int32 little endian (4 bytes, -2147483648-2147483647). `));
@@ -181,7 +181,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       uint32BeP.append(beBinCode);
-      uint32BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
+      uint32BeP.append(makeSvg(number));
 
       dataView.setUint32(0, number, true);
       uint32LeP.append(document.createTextNode(`Is uint32 little endian (4 bytes, 0-4294967295). `));
@@ -232,22 +232,14 @@ function getBinString(arrayBuffer) {
   return buffer;
 }
 
-function getBeBits(arrayBuffer) {
-  const uint8Array = new Uint8Array(arrayBuffer);
-  let buffer = '';
-  for (const byte of uint8Array) {
-    const str = byte.toString(2);
-    buffer += '0'.repeat(8 - str.length);
-    buffer += str;
+// TODO: Accept a flag indicating LE/BE and use for both
+// TODO: Derive a byte hex to show above the bits
+// TODO: Use external dummy SVG shared instance
+function makeSvg(number, le) {
+  if (le) {
+    throw new Error('LE is not supported yet');
   }
 
-  return [...buffer].map(bit => bit === '1');
-}
-
-// TODO: Accept only the number and a flag indicating LE/BE and derive bits and byte hex from it
-// TODO: Add support for the endianness flag
-// TODO: Use external dummy SVG shared instance
-function makeSvg(number, bits) {
   // Create a temporary SVG used to host the text element used for measurements
   const dummySvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   document.body.append(dummySvg);
@@ -271,7 +263,8 @@ function makeSvg(number, bits) {
   let rectY = marginY;
   let groupY = marginY;
 
-  const maxExp = Math.pow(2, bits.length - 1);
+  const bitCount = Math.ceil(Math.ceil(Math.log(4321) / Math.log(2)) / 8) * 8;
+  const maxExp = Math.pow(2, bitCount - 1);
   const maxExpText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   maxExpText.textContent = `* ${maxExp} =`;
   // Note that these values are swap to simulate the writing mode
@@ -279,10 +272,13 @@ function makeSvg(number, bits) {
 
   let partX;
 
-  for (let index = 0; index < bits.length; index++) {
+  for (let index = 0; index < bitCount; index++) {
     let y = marginY;
 
-    const order = bits.length - index - 1;
+    const order = bitCount - index - 1;
+    const exp = Math.pow(2, order);
+    const bit = number & exp;
+
     const orderText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     orderText.textContent = order;
     orderText.setAttribute('font-size', 'x-small');
@@ -293,7 +289,6 @@ function makeSvg(number, bits) {
 
     y += orderHeight;
 
-    const bit = bits[index];
     const bitText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     bitText.textContent = bit ? '1' : '0';
     bitText.setAttribute('font-family', 'monospace');
@@ -309,7 +304,6 @@ function makeSvg(number, bits) {
     // Remember last group's y to be able to draw the encompassing rect using it
     rectY = Math.max(rectY, y);
 
-    const exp = Math.pow(2, order);
     const expText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     expText.textContent = `* ${exp} =`;
     expText.style = 'writing-mode: tb;';
@@ -321,7 +315,7 @@ function makeSvg(number, bits) {
 
     y += maxExpHeight;
 
-    const part = bits[index] ? exp : 0;
+    const part = bit ? exp : 0;
     const partText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     partText.textContent = part;
     partText.setAttribute('font-family', 'monospace');
@@ -336,7 +330,6 @@ function makeSvg(number, bits) {
 
     // Center the texts vertically within the bit column
     const width = 10 + Math.max(orderWidth, bitWidth, expWidth) + 10;
-    console.log(width);
     orderText.setAttribute('x', x + ((width - orderWidth) / 2));
     bitText.setAttribute('x', x + ((width - bitWidth) / 2));
     expText.setAttribute('x', x + ((width - expWidth) / 1.5));
@@ -357,7 +350,7 @@ function makeSvg(number, bits) {
       svg.append(rect);
 
       // Separate the groups of bits comprising a byte visually
-      if (index !== bits.length - 1) {
+      if (index !== bitCount - 1) {
         x += width;
       }
       else {
@@ -378,7 +371,7 @@ function makeSvg(number, bits) {
       addText.setAttribute('text-anchor', 'middle');
       svg.append(addText);
 
-      if (index === bits.length - 1) {
+      if (index === bitCount - 1) {
         const sumText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         sumText.textContent = '= ' + number;
         sumText.setAttribute('font-family', 'monospace');
