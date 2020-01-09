@@ -32,9 +32,15 @@ Consider instead of the variables showing the actual digit values where the arro
 between them in the formula and in the displayed hex/bin would make sure they cannot be mistook
 for another digit of the same value.
 
+Display that with indices once and then with real values again for obviousness.
+
+Base this on the current code for the SVG of bit summing of the BE numbers.
+
 When we have multiple forms (bin, hex, dec), display conversions to hex/bin if decimal or
 to dec if not decimal. See below about accepting multiple kinds of inputs and repeating the
 UI for them.
+
+### Display a bit summing SVG for LE numbers as well and adapt it as per its comments
 
 ### Accept hex and binary strings as input
 

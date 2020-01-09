@@ -88,6 +88,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       int16BeP.append(beBinCode);
+      int16BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
 
       dataView.setInt16(0, number, true);
       int16LeP.append(document.createTextNode(`Is int16 little endian (2 bytes, -32768-32767). `));
@@ -117,6 +118,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       uint16BeP.append(beBinCode);
+      uint16BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
 
       dataView.setUint16(0, number, true);
       uint16LeP.append(document.createTextNode(`Is uint16 little endian (2 bytes, 0-65536). `));
@@ -149,6 +151,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       int32BeP.append(beBinCode);
+      int32BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
 
       dataView.setInt32(0, number, true);
       int32LeP.append(document.createTextNode(`Is int32 little endian (4 bytes, -2147483648-2147483647). `));
@@ -178,6 +181,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       uint32BeP.append(beBinCode);
+      uint32BeP.append(makeSvg(number, getBeBits(arrayBuffer)));
 
       dataView.setUint32(0, number, true);
       uint32LeP.append(document.createTextNode(`Is uint32 little endian (4 bytes, 0-4294967295). `));
@@ -197,6 +201,7 @@ window.addEventListener('load', () => {
   }
 
   render(numberInput.valueAsNumber);
+  //makeSvg(4321, [false, false, false, true, false, false, false, false, true, true, true, false, false, false, false, true]);
 });
 
 function getHexString(arrayBuffer) {
@@ -225,4 +230,174 @@ function getBinString(arrayBuffer) {
   }
 
   return buffer;
+}
+
+function getBeBits(arrayBuffer) {
+  const uint8Array = new Uint8Array(arrayBuffer);
+  let buffer = '';
+  for (const byte of uint8Array) {
+    const str = byte.toString(2);
+    buffer += '0'.repeat(8 - str.length);
+    buffer += str;
+  }
+
+  return [...buffer].map(bit => bit === '1');
+}
+
+// TODO: Accept only the number and a flag indicating LE/BE and derive bits and byte hex from it
+// TODO: Add support for the endianness flag
+// TODO: Use external dummy SVG shared instance
+function makeSvg(number, bits) {
+  // Create a temporary SVG used to host the text element used for measurements
+  const dummySvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  document.body.append(dummySvg);
+
+  // Measure the area needed to contain the provided text using the dummy DOM SVG
+  function measure(text) {
+    const dummyText = text.cloneNode(true);
+    dummySvg.append(dummyText);
+    // Note not to use `getComputedTextLength` as it doesn't reflect the rotation
+    const bounds = dummyText.getClientRects()[0];
+    dummyText.remove();
+    return { width: bounds.width, height: bounds.height };
+  }
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+
+  const marginX = 15;
+  let x = marginX;
+  let groupX = x;
+  const marginY = 5;
+  let rectY = marginY;
+  let groupY = marginY;
+
+  const maxExp = Math.pow(2, bits.length - 1);
+  const maxExpText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  maxExpText.textContent = `* ${maxExp} =`;
+  // Note that these values are swap to simulate the writing mode
+  const maxExpHeight = measure(maxExpText).width;
+
+  let partX;
+
+  for (let index = 0; index < bits.length; index++) {
+    let y = marginY;
+
+    const order = bits.length - index - 1;
+    const orderText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    orderText.textContent = order;
+    orderText.setAttribute('font-size', 'x-small');
+    const { width: orderWidth, height: orderHeight } = measure(orderText);
+    orderText.setAttribute('y', y + orderHeight);
+    orderText.setAttribute('stroke', 'gray');
+    svg.append(orderText);
+
+    y += orderHeight;
+
+    const bit = bits[index];
+    const bitText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    bitText.textContent = bit ? '1' : '0';
+    bitText.setAttribute('font-family', 'monospace');
+    bitText.setAttribute('font-size', '22');
+    bitText.setAttribute('font-weight', 'bold');
+    const { width: bitWidth, height: bitHeight } = measure(bitText);
+    bitText.setAttribute('y', y + bitHeight);
+    bitText.setAttribute('stroke', 'black');
+    svg.append(bitText);
+
+    y += bitHeight;
+
+    // Remember last group's y to be able to draw the encompassing rect using it
+    rectY = Math.max(rectY, y);
+
+    const exp = Math.pow(2, order);
+    const expText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    expText.textContent = `* ${exp} =`;
+    expText.style = 'writing-mode: tb;';
+    expText.setAttribute('font-family', 'monospace');
+    const { width: expWidth } = measure(expText);
+    expText.setAttribute('y', y + marginY * 4);
+    expText.setAttribute('stroke', bit ? 'gray' : 'silver');
+    svg.append(expText);
+
+    y += maxExpHeight;
+
+    const part = bits[index] ? exp : 0;
+    const partText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    partText.textContent = part;
+    partText.setAttribute('font-family', 'monospace');
+    const { width: partWidth, height: partHeight } = measure(partText);
+    partText.setAttribute('y', y + partHeight + marginY * 4);
+    partText.setAttribute('stroke', bit ? 'gray' : 'silver');
+    svg.append(partText);
+
+    y += partHeight;
+
+    const _partX = partX;
+
+    // Center the texts vertically within the bit column
+    const width = 10 + Math.max(orderWidth, bitWidth, expWidth) + 10;
+    console.log(width);
+    orderText.setAttribute('x', x + ((width - orderWidth) / 2));
+    bitText.setAttribute('x', x + ((width - bitWidth) / 2));
+    expText.setAttribute('x', x + ((width - expWidth) / 1.5));
+    partText.setAttribute('x', x + ((width - partWidth) / 2.5));
+    partX = x + ((width - partWidth) / 2.5) + partWidth;
+    x += width;
+
+    // TODO: Display the byte hex value atop the group in large font
+    if (index > 0 && index % 8 === 7) {
+      // Enclose the group of bits comprising a byte visually
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', groupX - 5);
+      rect.setAttribute('y', 5 + orderHeight + 5);
+      rect.setAttribute('width', x - groupX + 7.5);
+      rect.setAttribute('height', rectY - marginY * 2);
+      rect.setAttribute('stroke', 'silver');
+      rect.setAttribute('fill', 'none');
+      svg.append(rect);
+
+      // Separate the groups of bits comprising a byte visually
+      if (index !== bits.length - 1) {
+        x += width;
+      }
+      else {
+        x += marginX;
+      }
+
+      // Remember last group's x to be able to draw the encompassing rect using it
+      groupX = x;
+    }
+
+    if (index > 0) {
+
+      const addText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      addText.textContent = '+';
+      addText.setAttribute('font-family', 'monospace');
+      addText.setAttribute('x', _partX + ((partX - partWidth - _partX) / 2));
+      addText.setAttribute('y', y + marginY * 4.25);
+      addText.setAttribute('text-anchor', 'middle');
+      svg.append(addText);
+
+      if (index === bits.length - 1) {
+        const sumText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        sumText.textContent = '= ' + number;
+        sumText.setAttribute('font-family', 'monospace');
+        sumText.setAttribute('font-weight', 'bold');
+        sumText.setAttribute('font-size', 'large');
+        sumText.setAttribute('text-decoration', 'underline');
+        x += measure(sumText).width;
+        sumText.setAttribute('x', partX + partWidth);
+        sumText.setAttribute('y', y + marginY * 4.25);
+        //sumText.setAttribute('text-anchor', 'middle');
+        svg.append(sumText);
+      }
+    }
+
+    groupY = Math.max(groupY, y);
+  }
+
+  svg.setAttribute('width', x);
+  svg.setAttribute('height', groupY + marginY * 7);
+  dummySvg.remove();
+  return svg;
 }
