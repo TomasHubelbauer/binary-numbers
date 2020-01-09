@@ -56,3 +56,10 @@ https://github.com/TomasHubelbauer/sqlite-javascript/blob/master/patchDataView.j
 ### Consider supporting middle endian with the respective `DataView` prototype extensions
 
 https://en.wikipedia.org/wiki/Endianness#Middle-endian
+
+### Fix the part sum for negative numbers
+
+Currently `-1` is all ones which sums up to non-sense (all parts).
+
+Stretch the column width for all columns based on the part width of the widest
+part.

@@ -88,7 +88,9 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       int16BeP.append(beBinCode);
-      int16BeP.append(makeSvg(number));
+      if (number >= 0) {
+        int16BeP.append(makeSvg(number, 2));
+      }
 
       dataView.setInt16(0, number, true);
       int16LeP.append(document.createTextNode(`Is int16 little endian (2 bytes, -32768-32767). `));
@@ -118,7 +120,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       uint16BeP.append(beBinCode);
-      uint16BeP.append(makeSvg(number));
+      uint16BeP.append(makeSvg(number, 2));
 
       dataView.setUint16(0, number, true);
       uint16LeP.append(document.createTextNode(`Is uint16 little endian (2 bytes, 0-65536). `));
@@ -151,7 +153,9 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       int32BeP.append(beBinCode);
-      int32BeP.append(makeSvg(number));
+      if (number >= 0) {
+        int32BeP.append(makeSvg(number, 4));
+      }
 
       dataView.setInt32(0, number, true);
       int32LeP.append(document.createTextNode(`Is int32 little endian (4 bytes, -2147483648-2147483647). `));
@@ -181,7 +185,7 @@ window.addEventListener('load', () => {
       const beBinCode = document.createElement('code');
       beBinCode.textContent = getBinString(arrayBuffer);
       uint32BeP.append(beBinCode);
-      uint32BeP.append(makeSvg(number));
+      uint32BeP.append(makeSvg(number, 4));
 
       dataView.setUint32(0, number, true);
       uint32LeP.append(document.createTextNode(`Is uint32 little endian (4 bytes, 0-4294967295). `));
@@ -235,7 +239,7 @@ function getBinString(arrayBuffer) {
 // TODO: Accept a flag indicating LE/BE and use for both
 // TODO: Derive a byte hex to show above the bits
 // TODO: Use external dummy SVG shared instance
-function makeSvg(number, le) {
+function makeSvg(number, minBytes, le) {
   if (le) {
     throw new Error('LE is not supported yet');
   }
@@ -263,7 +267,7 @@ function makeSvg(number, le) {
   let rectY = marginY;
   let groupY = marginY;
 
-  const bitCount = Math.ceil(Math.ceil(Math.log(4321) / Math.log(2)) / 8) * 8;
+  const bitCount = Math.max(Math.ceil(Math.ceil(Math.log(4321) / Math.log(2)) / 8) * 8, minBytes * 8);
   const maxExp = Math.pow(2, bitCount - 1);
   const maxExpText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
   maxExpText.textContent = `* ${maxExp} =`;
