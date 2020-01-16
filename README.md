@@ -63,3 +63,11 @@ Currently `-1` is all ones which sums up to non-sense (all parts).
 
 Stretch the column width for all columns based on the part width of the widest
 part.
+
+### Change `makeSvg` to accept either an `ArrayBuffer` or a `DataView`
+
+This way reading the current byte and its bit will work even for negative numbers.
+Either still accept the corresponding number or derive it form the bytes? This is for
+display after the `=` sign. Also might still need to accept information about BE/LE
+in order to display the right exponents in the right order (unless derivable from the
+`DataView`?).
